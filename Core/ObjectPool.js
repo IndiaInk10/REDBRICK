@@ -43,7 +43,7 @@ class ObjectPool {
         return object;
     }
     push(object) {
-        // if(object == null) return;
+        // if(object === null) return;
         
         if(this.is_physics) object.setDynamic(false);
         object.position.copy(this.reset_position);
@@ -91,7 +91,7 @@ class CannonPool extends ObjectPool {
         return object;
     }
     push(object) {
-        if(object == null) return;
+        if(object === null) return;
         if(object.is_inside_pool) return;
         
         super.push(object);

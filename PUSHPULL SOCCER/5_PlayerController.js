@@ -1,8 +1,3 @@
-const avatar = REDBRICK.AvatarManager.createDefaultAvatar();
-avatar.setFollowingCamera(GLOBAL.CAMERA);
-avatar.setDefaultController();
-GLOBAL.CAMERA.useTPV();
-
 GLOBAL.PLAYER_MAX_SPEED = 8;
 GLOBAL.PLAYER_MAX_JUMP_HEIGHT = 16;
 
@@ -15,9 +10,13 @@ PLAYER.jump_height = GLOBAL.player_jump_height;
 PLAYER.changePlayerSpeed(0);
 PLAYER.changePlayerJumpHeight(0);
 
+function Update(dt) {
+    restorePlayerPosition();
+}
+
 function OnKeyDown(event) {
     if(!GLOBAL.is_playing) return;
-    if(event.code == "Space") GLOBAL.audio_manager.playJumpSfx();
+    if(event.code === "Space") GLOBAL.audio_manager.playJumpSfx();
 }
 function restorePlayerPosition() {
     if(PLAYER.position.y < -5) {
@@ -25,15 +24,13 @@ function restorePlayerPosition() {
         PLAYER.body.needUpdate = true;
     }
 }
-function Update(dt) {
-    restorePlayerPosition();
-}
+
 
 // Cannon Ball
 
 const CANNON_FORCE = 2000;
 const RETURN_TO_POOL_TIME = 1000;
-const TYPE = [ GLOBAL.TYPE.PUSH, GLOBAL.TYPE.NONE, GLOBAL.TYPE.PULL ];
+const CANNON_TYPES = [ GLOBAL.CANNON_TYPE.PUSH, GLOBAL.CANNON_TYPE.NONE, GLOBAL.CANNON_TYPE.PULL ];
 let cannon_firing_position = new THREE.Vector3();
 let cannon_force_vector = new THREE.Vector3();
 const CANNON_FIRE_FORCE = 3000;
@@ -47,10 +44,10 @@ function onCollideToBall(object) {
         
         let force_vector = new THREE.Vector3();
         switch(object.type){
-            case GLOBAL.TYPE.PUSH:
+            case GLOBAL.CANNON_TYPE.PUSH:
                 force_vector.subVectors(GLOBAL.BALL.position, object.position);
                 break;
-            case GLOBAL.TYPE.PULL:
+            case GLOBAL.CANNON_TYPE.PULL:
                 force_vector.subVectors(PLAYER.position, GLOBAL.BALL.position);
                 force_vector.y = 5; // Ball Height
                 break;
@@ -82,7 +79,7 @@ function OnPointerDown(event) {
     let cannon_ball = null;
     
     setFiringVariable();
-    cannon_ball = GLOBAL.cannon_pool.pop(cannon_firing_position, TYPE[event.button]);
+    cannon_ball = GLOBAL.cannon_pool.pop(cannon_firing_position, CANNON_TYPES[event.button]);
     onCollideToBall(cannon_ball);
     setTimeout(() => {
         cannon_ball.setDynamic(true);

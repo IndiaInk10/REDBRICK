@@ -96,14 +96,14 @@ function OnKeyUp(event){
 }
 
 function setAngle() {
-    if(direction.z == 1 && direction.x == 0)  angle = ANGLE.UP;
-    else if(direction.z == 1 && direction.x == 1) angle = ANGLE.LEFTUP;
-    else if(direction.z == 0 && direction.x == 1) angle = ANGLE.LEFT;
-    else if(direction.z == -1 && direction.x == 1) angle = ANGLE.LEFTDOWN;
-    else if(direction.z == -1 && direction.x == 0) angle = ANGLE.DOWN;
-    else if(direction.z == -1 && direction.x == -1) angle = ANGLE.RIGHTDOWN;
-    else if(direction.z == 0 && direction.x == -1) angle = ANGLE.RIGHT;
-    else if(direction.z == 1 && direction.x == -1) angle = ANGLE.RIGHTUP;
+    if(direction.z === 1 && direction.x === 0)  angle = ANGLE.UP;
+    else if(direction.z === 1 && direction.x === 1) angle = ANGLE.LEFTUP;
+    else if(direction.z === 0 && direction.x === 1) angle = ANGLE.LEFT;
+    else if(direction.z === -1 && direction.x === 1) angle = ANGLE.LEFTDOWN;
+    else if(direction.z === -1 && direction.x === 0) angle = ANGLE.DOWN;
+    else if(direction.z === -1 && direction.x === -1) angle = ANGLE.RIGHTDOWN;
+    else if(direction.z === 0 && direction.x === -1) angle = ANGLE.RIGHT;
+    else if(direction.z === 1 && direction.x === -1) angle = ANGLE.RIGHTUP;
 }
 
 function hasInput() {

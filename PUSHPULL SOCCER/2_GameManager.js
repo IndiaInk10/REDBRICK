@@ -1,5 +1,98 @@
+// Game Setup
+
+const avatar = REDBRICK.AvatarManager.createDefaultAvatar();
+avatar.setFollowingCamera(GLOBAL.CAMERA);
+avatar.setDefaultController();
+GLOBAL.CAMERA.useTPV();
+
+GLOBAL.BALL = WORLD.getObject("Ball");
+
+// Game Flow
+
 GLOBAL.is_end = false;
 GLOBAL.is_playing = false;
+
+GLOBAL.startGame = () => {
+    GLOBAL.is_end = false;
+
+    GLOBAL.CAMERA.useTPV("MOUSE_LOCK");
+    
+    setMyStart();
+    setPositionAndStartGame();
+}
+GLOBAL.reset = () => {
+    GLOBAL.BALL.revive();
+    setPositionAndStartGame(false);
+};
+GLOBAL.pauseGame = () => {
+    GLOBAL.is_playing = false;
+
+    PLAYER.changePlayerSpeed(0);
+    PLAYER.changePlayerJumpHeight(0);
+
+    GLOBAL.round_timer.pause();
+}
+
+function endGame() {
+    GLOBAL.BALL.setDynamic(false);
+    GLOBAL.pauseGame();
+
+    GLOBAL.CAMERA.useTPV();
+
+    GLOBAL.ui_manager.setTimeRoundTimeUI();
+    GLOBAL.audio_manager.pauseOthersBGM();
+    
+    let is_victory = false;
+    switch(GLOBAL.myStart.team){
+        case "blue":
+            is_victory = blue_team_score >= red_team_score;
+            break;
+        case "red":
+            is_victory = red_team_score >= blue_team_score;
+            break;
+    }
+    GLOBAL.ui_manager.showResultUI(is_victory);
+    GLOBAL.audio_manager.playResultSfx(is_victory);
+
+    setTimeout(() => {
+        GLOBAL.is_end = true;
+    }, 1000);
+}
+function setPositionAndStartGame(is_start = true) {
+    GLOBAL.setBallPoistion();
+    PLAYER.position.copy(GLOBAL.myStart.position);
+    PLAYER.body.needUpdate = true;
+
+    GLOBAL.audio_manager.playWhistleSfx();
+    setTimeout(() => {
+        PLAYER.changePlayerSpeed(GLOBAL.player_speed);
+        PLAYER.changePlayerJumpHeight(GLOBAL.player_jump_height);
+        GLOBAL.is_playing = true;
+        if(is_start) {
+            GLOBAL.round_timer.reset();
+            GLOBAL.round_timer.start();
+        }
+        else {
+            GLOBAL.round_timer.resume();
+        }
+    }, 2000);
+}
+function OnPointerDown(event) {
+    if(!GLOBAL.is_end) return;
+    if (event.button === 0) {
+        GLOBAL.is_end = false;
+        blue_team_score = 0;
+        red_team_score = 0;
+
+        GLOBAL.ui_manager.hideInGameUI();
+        GLOBAL.ui_manager.hideResultUI();
+        setTimeout(() => {
+            GLOBAL.ui_manager.showLobbyUI();
+            GLOBAL.audio_manager.playLobbyBGM();
+        }, 500);
+    }
+}
+
 
 // Player Start / Reset Position
 
@@ -30,6 +123,7 @@ function setMyStart() {
     }
 }
 
+
 // Round Time ; Timer
 
 const MAX_ROUND_TIME = 360; // sec
@@ -37,36 +131,11 @@ const round_time_text = GUI.getObject("round_time");
 
 GLOBAL.round_timer = new REDBRICK.Timer();
 
-GLOBAL.startGame = () => {
-    GLOBAL.CAMERA.useTPV("MOUSE_LOCK");
-    GLOBAL.BALL.setDynamic(true);
-    setMyStart();
-    setPositionAndStartGame();
+function Update(dt) {
+    if(!GLOBAL.is_playing) return;
+    updateRoundTime();
 }
-function setPositionAndStartGame(is_start = true) {
-    GLOBAL.setBallPoistion();
-    PLAYER.position.copy(GLOBAL.myStart.position);
-    PLAYER.body.needUpdate = true;
-    GLOBAL.audio_manager.playWhistleSfx();
-    setTimeout(() => {
-        PLAYER.changePlayerSpeed(GLOBAL.player_speed);
-        PLAYER.changePlayerJumpHeight(GLOBAL.player_jump_height);
-        GLOBAL.is_playing = true;
-        if(is_start) {
-            GLOBAL.round_timer.reset();
-            GLOBAL.round_timer.start();
-        }
-        else {
-            GLOBAL.round_timer.resume();
-        }
-    }, 2000);
-}
-GLOBAL.pauseGame = () => {
-    GLOBAL.is_playing = false;
-    PLAYER.changePlayerSpeed(0);
-    PLAYER.changePlayerJumpHeight(0);
-    GLOBAL.round_timer.pause();
-}
+
 function calculateTimeToString(sec) {
     const cal_min = Math.floor(sec / 60);
     const cal_sec = Math.floor(sec % 60);
@@ -87,7 +156,6 @@ let blue_team_score = 0;
 let red_team_score = 0;
 
 GLOBAL.get_score = (team_color) => {
-    GLOBAL.round_timer.pause(); // pause timer for reset process
     switch(team_color){
         case "blue":
             red_team_score++;
@@ -99,65 +167,3 @@ GLOBAL.get_score = (team_color) => {
             break;
     }
 };
-function endGame() {
-    GLOBAL.ui_manager.setTimeRoundTimeUI();
-    GLOBAL.CAMERA.useTPV();
-    GLOBAL.BALL.setDynamic(false);
-    GLOBAL.audio_manager.pauseOthersBGM();
-    GLOBAL.pauseGame();
-    let is_victory = false;
-    switch(GLOBAL.myStart.team){
-        case "blue":
-            is_victory = blue_team_score >= red_team_score;
-            break;
-        case "red":
-            is_victory = red_team_score >= blue_team_score;
-            break;
-    }
-    GLOBAL.ui_manager.showResultUI(is_victory);
-    GLOBAL.audio_manager.playResultSfx(is_victory);
-    setTimeout(() => {
-        GLOBAL.is_end = true;
-    }, 1000);
-    // end process
-}
-
-
-// Reset All Objects Position : PLAYERS, BALL
-
-GLOBAL.BALL = WORLD.getObject("Ball");
-const reset_position = new THREE.Vector3(0, 5, 0);
-
-GLOBAL.setBallPoistion = (position = reset_position) => {
-    GLOBAL.BALL.setDynamic(false);
-    GLOBAL.BALL.position.copy(position);
-    GLOBAL.BALL.body.needUpdate = true;
-    
-    setTimeout(() => {
-        GLOBAL.BALL.setDynamic(true);
-    }, 50);
-}
-GLOBAL.reset = () => {
-    GLOBAL.BALL.revive();
-    GLOBAL.setBallPoistion();
-    setPositionAndStartGame(false);
-};
-
-function OnPointerDown(event) {
-    if(!GLOBAL.is_end) return;
-    if (event.button === 0) {
-        GLOBAL.is_end = false;
-        blue_team_score = 0;
-        red_team_score = 0;
-        GLOBAL.ui_manager.hideInGameUI();
-        GLOBAL.ui_manager.hideResultUI();
-        setTimeout(() => {
-            GLOBAL.ui_manager.showLobbyUI();
-            GLOBAL.audio_manager.playLobbyBGM();
-        }, 500);
-    }
-}
-function Update(dt) {
-    if(!GLOBAL.is_playing) return;
-    updateRoundTime();
-}

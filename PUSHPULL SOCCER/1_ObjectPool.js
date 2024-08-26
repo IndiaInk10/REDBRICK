@@ -1,59 +1,51 @@
 const reset_position = new THREE.Vector3(0, -1000, 0);
 
 class ObjectPool {
-    constructor() {}
-    // constructor(is_physics = false, pool_count, object_name){
-    //     this.is_physics = is_physics;
-    //     this.reset_position = reset_position;
-    //     this.pool_count = pool_count;
-    //     this.objects = [];
-    //     for(let i = 1; i <= pool_count; i++) {
-    //         this.objects.push(WORLD.getObject(`${object_name}_${i}`));
-    //         this.objects[i-1].type = "none"; // cannon_type
-    //     }
-    // }
-    
-    init(is_physics = false, pool_count, object_name) {
+    is_physics;
+    reset_position;
+    count;
+    objects;
+
+    init(is_physics = false, count, object_name) {
         this.is_physics = is_physics;
         this.reset_position = reset_position;
-        this.pool_count = pool_count;
+        this.count = count;
         this.objects = [];
-        for(let i = 1; i <= pool_count; i++) {
+        for(let i = 1; i <= count; i++) {
             this.objects.push(WORLD.getObject(`${object_name}_${i}`));
             this.objects[i-1].is_inside_pool = true;
         }
     }
     
-    setPosition(object, target_position) {
+    #setPosition(object, target_position) {
         object.position.copy(target_position);
-        object.body.needUpdate = true;
+        if(object.hasBody) object.body.needUpdate = true;
     }
     pop(target_position) {
         // if(this.objects.length <= 0) return;
         
-        let object = this.objects[0];
-        this.objects.shift();
+        let object = this.objects.shift();
         object.is_inside_pool = false;
         
-        // this.setPosition(object, target_position);
-        object.position.copy(target_position);
-        if(object.hasBody) object.body.needUpdate = true;
+        this.#setPosition(object, target_position);
         if(this.is_physics) setTimeout(() => object.setDynamic(true), 50);
         
         return object;
     }
     push(object) {
-        // if(object == null) return;
+        // if(object === null) return;
+
+        object.is_inside_pool = true;
         
         if(this.is_physics) object.setDynamic(false);
-        object.position.copy(this.reset_position);
-        if(object.hasBody) object.body.needUpdate = true;
+        this.#setPosition(object, this.reset_position);
         
         this.objects.push(object);
     }
 }
 
-GLOBAL.TYPE = {
+
+GLOBAL.CANNON_TYPE = {
     NONE: "none",
     PULL: "pull",
     PUSH: "push",
@@ -65,15 +57,15 @@ const COLOR = {
 };
 
 const scale_vector = new THREE.Vector3(2, 2, 2);
+
 class CannonPool extends ObjectPool {
-    constructor () { super(); }
-    
-    init(is_physics = false, pool_count, object_name) {
-        super.init(is_physics, pool_count, object_name);
-        for(let i = 1; i <= pool_count; i++) {
-            this.objects[i-1].type = GLOBAL.TYPE.NONE; // cannon_type
-            this.objects[i-1].scale.copy(scale_vector);
-        }
+
+    init(is_physics = false, count, object_name) {
+        super.init(is_physics, count, object_name);
+        this.objects.forEach(val => {
+            val.type = GLOBAL.CANNON_TYPE.NONE;
+            val.scale.copy(scale_vector);
+        });
     }
     
     pop(target_position, type) {
@@ -82,21 +74,21 @@ class CannonPool extends ObjectPool {
         let object = super.pop(target_position);
         object.type = type;
         switch(type){
-            case GLOBAL.TYPE.PULL:
+            case GLOBAL.CANNON_TYPE.PULL:
                 object.material.color.set(COLOR.PULL);
                 break;
-            case GLOBAL.TYPE.PUSH:
+            case GLOBAL.CANNON_TYPE.PUSH:
                 object.material.color.set(COLOR.PUSH);
                 break;
         }
         return object;
     }
     push(object) {
-        if(object == null) return;
+        if(object === null) return;
         if(object.is_inside_pool) return;
         
         super.push(object);
-        object.type = GLOBAL.TYPE.NONE;
+        object.type = GLOBAL.CANNON_TYPE.NONE;
         object.material.color.set(COLOR.NONE);
     }
 }
