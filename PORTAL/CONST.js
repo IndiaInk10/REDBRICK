@@ -1,0 +1,4 @@
+GLOBAL.COLOR = {
+    ORANGE : 0xFF5D00,
+    BLUE : 0x0065FF,
+}
