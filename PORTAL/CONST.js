@@ -3,6 +3,11 @@ GLOBAL.COLOR = {
     BLUE : 0x0065FF,
 }
 
+const PORTAL_TYPE = {
+    ORANGE : 0,
+    BLUE : 2,
+}
+
 const avatar = REDBRICK.AvatarManager.createDefaultAvatar();
 GLOBAL.CAMERA = WORLD.getObject("MainCamera");
 const followingCamera = avatar.setFollowingCamera(GLOBAL.CAMERA);
