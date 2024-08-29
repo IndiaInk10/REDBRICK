@@ -6,7 +6,7 @@ const RENDERER = new THREE.WebGLRenderer({ canvas: CANVAS });
 class Portal {
     isDeployed;
     
-    #one; // object
+    #one; // object(Portal)
     theOtherPortal = null; // Portal
 
     static offset;
@@ -57,6 +57,7 @@ class Portal {
         
         this.camera = new THREE.PerspectiveCamera(20, CANVAS.width / CANVAS.height, 0.1, 1000);
         this.camera.layers.enableAll();
+        // this.camera.layers.disable(3);
         this.camera.lookAt(this.target.position);
         this.#one.add(this.camera);
         this.camera.position.set(0, -0.75, 0);
@@ -169,6 +170,33 @@ GLOBAL.portal_gun = new PortalGun([
     new Portal(WORLD.getObject('Blue_Portal')),
 ]);
 
+const hand = WORLD.getObject('Hand');
+const realPortalGun = WORLD.getObject('PortalGun');
+
+const distance = -1;
+const offset = new THREE.Vector3(1, -1, 0);
+
+function Start() {
+    // Add Hand to Camera
+    GLOBAL.CAMERA.getWorldDirection(hand.position);
+    hand.position.multiplyScalar(distance);
+    hand.position.add(offset);
+    GLOBAL.CAMERA.add(hand);
+    
+    // Add PortalGun to PLAYER
+    let portalGunClone = realPortalGun.clone();
+    portalGunClone.scale.multiplyScalar(0.25);
+    portalGunClone.position.set(-0.2, 0.25, 0);
+    PLAYER.add(portalGunClone);
+}
+
+function updateRealPortalGunPoistion() {
+    hand.getWorldPosition(realPortalGun.position);
+    realPortalGun.lookAt(PLAYER.selectPosition);
+}
+
 function Update(dt) {
+    // Update PortalGun Position to Hand
+    updateRealPortalGunPoistion();
     GLOBAL.portal_gun.Update(dt);
 }

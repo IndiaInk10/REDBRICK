@@ -58,3 +58,26 @@ function Update(dt) {
     renderer.setRenderTarget(null);
     renderer.render(WORLD, my_camera);
 }
+
+const hand = WORLD.getObject('Hand');
+const portalGun = WORLD.getObject('PortalGun');
+
+const distance = -1;
+const offset = new THREE.Vector3(-1, 0, 0);
+
+function Start() {
+    GLOBAL.CAMERA.getWorldDirection(hand.position);
+    hand.position.multiplyScalar(distance);
+    hand.position.add(offset);
+    GLOBAL.CAMERA.add(hand);
+    
+    let portalGunClone = portalGun.clone();
+    portalGunClone.scale.multiplyScalar(0.25);
+    portalGunClone.position.set(-0.2, 0.5, 0);
+    PLAYER.add(portalGunClone);
+}
+
+function Update(dt) {
+    hand.getWorldPosition(portalGun.position);
+    portalGun.lookAt(PLAYER.selectPosition);
+}
