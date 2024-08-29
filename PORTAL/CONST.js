@@ -3,7 +3,7 @@ GLOBAL.COLOR = {
     BLUE : 0x0065FF,
 }
 
-const PORTAL_TYPE = {
+GLOBAL.PORTAL_TYPE = {
     ORANGE : 0,
     BLUE : 2,
 }

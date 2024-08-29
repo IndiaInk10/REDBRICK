@@ -1,15 +1,20 @@
 class Button {
     isPressed;
     isPressing;
+    isOnTop;
+    
     part;
     wires = [];
-    duration;
+    debouncer;
+    
     originToTargetDistance;
     resetPosition = {
         origin : null,
         target : null,
     };
+    
     currentTween;
+    duration;
     millisec = {
         origin : null,
         target : null,
@@ -18,8 +23,8 @@ class Button {
     constructor(object, duration = 0.1) {
         this.isPressed = false;
         this.isPressing = false;
-        this.duration = duration;
-        this.resetPosition.target = object.position.clone();
+        this.isOnTop = false;
+        
         object.children.forEach(val => {
             switch(val.title) {
                 case 'wire':
@@ -33,10 +38,19 @@ class Button {
                     break;
             }
         });
+        this.setOnCollide();
+        
+        this.resetPosition.target = object.position.clone();
         this.originToTargetDistance = this.resetPosition.origin.distanceTo(this.resetPosition.target);
+        
         this.currentTween = null;
+        this.duration = duration;
         this.millisec.origin = 10000;
         this.millisec.target = 1000;
+    }
+    setOnCollide() {
+        this.part.onCollide('InteractBox', () => this.isOnTop = true, 'start');
+        this.part.onCollide('InteractBox', () => this.isOnTop = false, 'end');
     }
 
     getDistanceBetweenPlayer() {
@@ -61,9 +75,12 @@ class Button {
             this.currentTween.to({
                 y: this.resetPosition[key_str].y,
             }, this.calculateDurationByDistance(distance) * this.millisec[key_str])
+            .onUpdate(()=> {
+                this.part.body.needUpdate = true;
+            })
             .onComplete(() => {
-                this.currentTween = null;
                 if(func) func();
+                this.currentTween = null;
             });
             this.currentTween.start();
     }
@@ -77,11 +94,13 @@ class Button {
     unpress() {
         if(!this.isPressing) return;
         this.isPressing = false;
+        this.isPressed = false;
         this.createTweenAndStart('origin', () => {
             this.onUnpressed();
         });
     }
     onPressed() {
+        this.isPressed = true;
         this.wires.forEach(val => {
             val.material.color.set(GLOBAL.COLOR.ORANGE);
         });
@@ -96,12 +115,11 @@ class Button {
 const BUTTON = new Button(this);
 
 function Update(dt) {
-    if(BUTTON.getDistanceBetweenPlayer() > 2.5) {
-        if(BUTTON.isPressing) BUTTON.unpress(); 
+    if(BUTTON.getDistanceBetweenPlayer() > 2.5 && !BUTTON.isOnTop) {
+        if(BUTTON.isPressing) BUTTON.unpress();
         return; 
     }
     else {
         if(!BUTTON.isPressing) BUTTON.press();
-        return;
     }
 }
