@@ -38,7 +38,6 @@ const blue_team_goal_post = WORLD.getObject("blue_team_goal_post");
 const red_team_goal_post = WORLD.getObject("red_team_goal_post");
 
 blue_team_goal_post.onCollide(GLOBAL.BALL, () => {
-    console.log("collide");
     GLOBAL.pauseGame();
     GLOBAL.audio_manager.playGoalSfx();
     BLUE_PARTICLE.position.x = GLOBAL.BALL.position.x;

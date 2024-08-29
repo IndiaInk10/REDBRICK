@@ -39,7 +39,8 @@ class UIManager {
         this.ui[1][0].setText(0);
         this.ui[1][1].setText(0);
         this.ui[1][2].setText("VS");
-        this.ui[1][3].setText("6:0");
+        // this.ui[1][3].setText("6:0");
+        this.ui[1][3].setText("1:0");
         this.ui[1].forEach(val => {
             val.show();
         });

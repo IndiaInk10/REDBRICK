@@ -126,7 +126,8 @@ function setMyStart() {
 
 // Round Time ; Timer
 
-const MAX_ROUND_TIME = 360; // sec
+// const MAX_ROUND_TIME = 360; // sec
+const MAX_ROUND_TIME = 60; // sec
 const round_time_text = GUI.getObject("round_time");
 
 GLOBAL.round_timer = new REDBRICK.Timer();

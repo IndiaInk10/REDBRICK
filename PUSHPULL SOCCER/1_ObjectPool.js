@@ -56,15 +56,12 @@ const COLOR = {
     PUSH: 0xFF0000,
 };
 
-const scale_vector = new THREE.Vector3(2, 2, 2);
-
 class CannonPool extends ObjectPool {
 
     init(is_physics = false, count, object_name) {
         super.init(is_physics, count, object_name);
         this.objects.forEach(val => {
             val.type = GLOBAL.CANNON_TYPE.NONE;
-            val.scale.copy(scale_vector);
         });
     }
     
