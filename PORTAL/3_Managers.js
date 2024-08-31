@@ -61,7 +61,7 @@ GLOBAL.audio_manager = new AudioManager(
     [
         'lobby_bgm', 
         'ingame_bgm', 
-        'clear_bgm'
+        'clear_bgm',
     ],
     [
         'portalgun_shoot_orange_sfx', 

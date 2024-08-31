@@ -5,6 +5,7 @@ class InteractBox {
     isShowGuide; // isSelectable
 
     #one; // object(this)
+    resetPosition;
     selectGuide; // object
 
     static offset;
@@ -29,6 +30,7 @@ class InteractBox {
         this.isShowGuide = false;
 
         this.#one = object;
+        this.resetPosition = object.position.clone();
         this.selectGuide = object.children[0];
 
         this.offset = new THREE.Vector3(0, -1.25, 0);
@@ -70,6 +72,11 @@ class InteractBox {
     }
 
     Update(dt) {
+        if (this.position.y <= this.resetPosition.y - 5) {
+            this.setDynamic(false);
+            this.position.copy(this.resetPosition);
+            this.body.needUpdate = true;
+        }
         if (this.isSelected) {
             this.position.copy(PLAYER.selectPosition);
             this.body.needUpdate = true;

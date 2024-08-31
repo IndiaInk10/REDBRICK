@@ -1,5 +1,3 @@
-isEquiped = true;
-
 PLAYER.selectPosition = new THREE.Vector3();
 const distance = 8;
 const offset = new THREE.Vector3(0, 5, 0);
@@ -9,7 +7,7 @@ function OnKeyDown(event) {
 }
 
 function OnPointerDown(event) {
-    if (!isEquiped) return;
+    if (!GLOBAL.is_start) return;
     if (event.button !== GLOBAL.PORTAL_TYPE.ORANGE && event.button !== GLOBAL.PORTAL_TYPE.BLUE) return;
     GLOBAL.portal_gun.shootPortal(event.button);
 }
