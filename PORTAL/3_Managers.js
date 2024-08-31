@@ -29,7 +29,7 @@ class AudioManager {
     }
     
     initSfx() {
-        this.sfx[0].setVolume(0.75);
+        this.sfx[0].setVolume(0.5);
     }
     playPortalShootSfx(portal_type) {
         // this.sfx[0].stop();
