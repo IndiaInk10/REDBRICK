@@ -179,6 +179,7 @@ class Button {
     }
     press() {
         if(this.isPressing) return;
+        GLOBAL.audio_manager.playButtonPositiveSfx();
         this.isPressing = true;
         this.createTweenAndStart('target', () => {
             this.onPressed();
@@ -186,6 +187,7 @@ class Button {
     }
     unpress() {
         if(!this.isPressing) return;
+        GLOBAL.audio_manager.playButtonNegativeSfx();
         this.isPressing = false;
         this.isPressed = false;
         this.createTweenAndStart('origin', () => {

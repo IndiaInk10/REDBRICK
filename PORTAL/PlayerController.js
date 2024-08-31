@@ -2,7 +2,7 @@ isEquiped = true;
 
 PLAYER.selectPosition = new THREE.Vector3();
 const distance = 8;
-const offset = new THREE.Vector3(0, 4, 0);
+const offset = new THREE.Vector3(0, 5, 0);
 
 function OnKeyDown(event) {
     if (event.code === 'Escape') isEquiped = !isEquiped;

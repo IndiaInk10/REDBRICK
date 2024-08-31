@@ -79,12 +79,15 @@ class Portal {
         return this.position.distanceTo(GLOBAL.CAMERA.position);
     }
     moveToTheOther() {
+        GLOBAL.audio_manager.playPortalEnterSfx();
+        
         let offsetPosition = new THREE.Vector3();
         this.theOtherPortal.target.getWorldPosition(offsetPosition);
         offsetPosition.add(this.offset);
 
         PLAYER.position.copy(offsetPosition);
         PLAYER.body.needUpdate = true;
+        GLOBAL.audio_manager.playPortalExitSfx();
     }
 
     createTweenAndStart() {
@@ -101,6 +104,7 @@ class Portal {
         this.currentTween.start();
     }
     deployPortal(position, lookAtPosition) {
+        GLOBAL.audio_manager.playPortalOpenSfx();
         this.position.copy(position);
         this.lookAt(lookAtPosition);
         this.createTweenAndStart();
@@ -171,6 +175,7 @@ class PortalGun {
     }
     shootPortal(portal_type) {
         this.createTweenAndStart();
+        GLOBAL.audio_manager.playPortalShootSfx(portal_type);
 
         this.raycaster.setFromCamera(this.pointer, GLOBAL.CAMERA);
         const intersects = this.raycaster.intersectObjects(this.raycastObjects);
@@ -200,10 +205,10 @@ const offset = new THREE.Vector3(1, -1, 0);
 
 function Start() {
     // Add Hand to Camera
-    GLOBAL.CAMERA.getWorldDirection(hand.position);
+    GLOBAL.MAINCAMERA.getWorldDirection(hand.position);
     hand.position.multiplyScalar(distance);
     hand.position.add(offset);
-    GLOBAL.CAMERA.add(hand);
+    GLOBAL.MAINCAMERA.add(hand);
     
     GLOBAL.portal_gun = new PortalGun([
         new Portal(WORLD.getObject('Orange_Portal')),
