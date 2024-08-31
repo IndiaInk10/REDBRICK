@@ -131,7 +131,14 @@ class PortalGun {
     pointer;
     raycastObjects;
 
-    constructor(portals) {
+    hand;
+    currentTween;
+    resetPositionZ = {
+        origin : null,
+        target : null,
+    }
+
+    constructor(portals, hand) {
         this.portals = [portals[0], null, portals[1]]; // for mouse button matching
         this.portals[GLOBAL.PORTAL_TYPE.ORANGE].connectToTheOther(this.portals[GLOBAL.PORTAL_TYPE.BLUE]);
 
@@ -142,16 +149,36 @@ class PortalGun {
 
         this.raycaster.layers.enableAll();
         this.raycaster.firstHitOnly = true;
+
+        this.hand = hand;
+        this.currentTween = null;
+        this.resetPositionZ.origin = hand.position.z;
+        this.resetPositionZ.target = hand.position.z + 0.5;
     }
 
-    shootPortal(portal_type) {
-        this.raycaster.setFromCamera(this.pointer, GLOBAL.CAMERA);
+    createTweenAndStart() {
+        if(this.currentTween) this.currentTween.stop();
 
+        this.currentTween = new TWEEN.Tween(this.hand.position);
+        this.currentTween.to({ z : this.resetPositionZ.target }, 150)
+        .onStart(() => {
+            this.hand.position.z = this.resetPositionZ.origin;
+        })
+        .onComplete(() => {
+            this.hand.position.z = this.resetPositionZ.origin;
+        });
+        this.currentTween.start();
+    }
+    shootPortal(portal_type) {
+        this.createTweenAndStart();
+
+        this.raycaster.setFromCamera(this.pointer, GLOBAL.CAMERA);
         const intersects = this.raycaster.intersectObjects(this.raycastObjects);
         if (intersects.length > 0) {
             let position = new THREE.Vector3();
             let normal = new THREE.Vector3();
-            position.copy(GLOBAL.GRID.calculateGrid(intersects[0].point, intersects[0].face.normal));
+            // position.copy(GLOBAL.GRID.calculateGrid(intersects[0].point, intersects[0].face.normal));
+            position.copy(intersects[0].point);
             position.add(intersects[0].face.normal.multiplyScalar(0.1));
             normal.addVectors(position, intersects[0].face.normal);
             this.portals[portal_type].deployPortal(position, normal);
@@ -165,11 +192,6 @@ class PortalGun {
     }
 }
 
-GLOBAL.portal_gun = new PortalGun([
-    new Portal(WORLD.getObject('Orange_Portal')),
-    new Portal(WORLD.getObject('Blue_Portal')),
-]);
-
 const hand = WORLD.getObject('Hand');
 const realPortalGun = WORLD.getObject('PortalGun');
 
@@ -182,6 +204,11 @@ function Start() {
     hand.position.multiplyScalar(distance);
     hand.position.add(offset);
     GLOBAL.CAMERA.add(hand);
+    
+    GLOBAL.portal_gun = new PortalGun([
+        new Portal(WORLD.getObject('Orange_Portal')),
+        new Portal(WORLD.getObject('Blue_Portal')),
+    ], hand);
     
     // Add PortalGun to PLAYER
     let portalGunClone = realPortalGun.clone();
