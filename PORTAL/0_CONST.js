@@ -13,3 +13,5 @@ GLOBAL.CAMERA = WORLD.getObject("MainCamera");
 const followingCamera = avatar.setFollowingCamera(GLOBAL.CAMERA);
 avatar.setDefaultController();
 GLOBAL.CAMERA.useFPS();
+
+GLOBAL.MAINCAMERA = GLOBAL.CAMERA;
